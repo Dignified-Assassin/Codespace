@@ -1,58 +1,200 @@
-#include<P18F4550.h>
-
-void delay()
+#include<iostream>
+using namespace std;
+struct Student
 {
-	unsigned int i;
-	for(i=0;i<30000;i++);
+    int rollNo;
+    string name;
+    float cgpa;
+}studentList[15],key,temp;
+
+void quickSort(int first , int last)
+{
+    int p ,i , j ;
+    p=i=first;
+    j=last;
+    if(first < last)
+    {
+        while(i<j)
+        {
+            while(studentList[i].cgpa<=studentList[p].cgpa && i<last)
+                i++;
+            while(studentList[j].cgpa > studentList[p].cgpa)
+                j--;
+            if(i<j)
+            {
+                temp=studentList[i];
+                studentList[i]=studentList[j];
+                studentList[j]=temp;                  
+            }
+        }
+        temp=studentList[p];
+        studentList[p]=studentList[j];
+        studentList[j]=temp;
+        quickSort( first,j-1);
+        quickSort(j+1,last);       
+    }
+}
+void insertionSort()
+{
+    int j;
+    for(int i  = 1 ; i < 15;i ++)
+    {
+        key=studentList[i];
+        j=i-1;
+        while(j >= 0 && studentList[j].name>key.name)
+        {
+            studentList[j + 1]=studentList[j];
+            j=j - 1;
+        }
+    studentList[j + 1]=key;
+    }
+}
+void display(){
+    for(int i=0;i<15;i++)
+    {   
+        cout<<i+1<<". "<<studentList[i].rollNo<<" "<<studentList[i].name<<" "<<studentList[i].cgpa<<" ";
+        cout<<endl;
+    }
 }
 
-
-void main()
+int main() 
 {
-    unsigned char i, key = 0;
+    cout<<"Enter the Rollno , Name and CGPA of student"<<endl;
 
-    TRISB = 0x00;                           //LED pins as output
-    LATB = 0x00;
-
-    ADCON1 = 0x0F;                          //set pins as Digital
-    TRISAbits.TRISA2 = 1;                   //set RA2 as input
-    TRISAbits.TRISA3 = 1;                   //set RA31 as input
-
-    TRISAbits.TRISA5 = 0;                   //set buzzer pin RA5 as output
-    TRISAbits.TRISA4 = 0;                   //set relay pin RA4 as output
-    
-    while(1)
+    for(int i = 0 ; i < 15 ; i++)
     {
-        //LATAbits.LA2 = 1;
-        //LATAbits.LA3 = 1;
-
-        if(PORTAbits.RA2 == 0) key =0;      //If button1 pressed
-        if(PORTAbits.RA3 == 0) key =1;      //If button2 pressed
-
-        if(key == 0)
-        {
-            LATAbits.LATA4 = 1;             //Relay OFF
-            LATAbits.LATA5 = 0;             //Buzzer OFF
-            for(i=0;i<8;i++)                //Chase LED right to left
-            {
-                LATB = 1<<i;
-                delay();
-                LATB = 0x00;
-                delay();
-            }
-        }
-        if(key == 1)
-        {
-            LATAbits.LATA4 = 0;             //Relay ON
-            LATAbits.LATA5 = 1;             //Buzzer ON
-            for(i=7;i> 0;i--)               //Chase LED left to right
-            {
-                LATB = 1<<i;
-                delay();
-                LATB = 0x00;
-                delay();
-            }
-        }
+        //TAKING INPUT FOR 15 STUDENTS
+        cout<<"enter roll number;"<<endl;
+        cin>>studentList[i].rollNo;
+        cout<<"enter name;"<<endl;
+        cin>>studentList[i].name;
+        cout<<"enter cgpa;"<<endl;
+        cin>>studentList[i].cgpa;    }
+    while (true)
+    {
         
+        cout<<"OPERATIONS"<<endl;
+        cout<<"1. Arrange students according to their Roll nos. using BUBBLE SORT"<<endl;
+        cout<<"2. Arrange students according to their Names using INSERTION SORT"<<endl;
+        cout<<"3. Searching student based on their CGPA using LINEAR SEARCH" <<endl;
+        cout<<"4. Getting First 10 toppers of the class using QUICK SORT"<<endl;
+        cout<<"5. Search a student by his/her name using BINARY SEARCH"<<endl;
+        cout<<""<<endl;
+        cout<<endl;
+
+        cout<<"Enter your choice"<<endl; 
+        int ch;
+        cin>>ch;
+
+        switch (ch)
+        {
+            //ARRANGING THE ROLL NO. USING BUBBLE SORT
+            case 1: 
+                    for(int size = 0 ; size < 14 ; size ++) {
+                        for(int i = 0 ; i < 14 ; i ++) {
+                            if(studentList[i].rollNo>studentList[i + 1].rollNo) {
+                                temp=studentList[i];
+                                studentList[i]=studentList[i + 1];
+                                studentList[i + 1]=temp;   
+                            }
+                        }   
+                    }
+                    display();   
+                break;
+                //ARRANGING STUDENTS ACCORDING THEIR NAMES USING INSERTION SORT
+            case 2:
+                    insertionSort();          //CALLING insertionSort FUNCTION
+                    display();                //CALLING display FUNCTION
+                break;
+            
+            // FINDING STUDENTS BASED ON THEIR CGPA USING LINEAR SEARCH
+            case 3:
+                    {
+                    cout<<"Enter CGPA of the student"<<endl;
+                    float cg;
+                    cin>>cg;
+                    int i;
+                    int flag=0;
+                    for(i = 0 ; i < 15 ; i++)
+                    {
+                        if(studentList[i].cgpa == cg)
+                    {       
+                            cout<<studentList[i].rollNo<<" "<<studentList[i].name<<" "<<studentList[i].cgpa<<endl;  
+                             flag=1;
+                    }
+                    }
+                    if(flag == 0){
+                        cout<<"Wrong input no student with that cgpa"<<endl;
+                    }
+                    
+                break;
+                }
+                
+                //GETTING FIRST 10 TOPPERS
+            case 4: 
+                    quickSort(0 , 14); //CALLING quickSort FUNCTION
+                    cout<<"First 10 topper of the class are :"<<endl;
+                    for(int i= 14 ; i > 4; i--)
+                    {
+                        cout<<studentList[i].rollNo<<" "<<studentList[i].name<<" "<<studentList[i].cgpa<<endl;
+                    }
+                break;
+            
+            //GETTING A STUDENT BY HIS/HER NAME 
+            case 5:
+            {
+                    insertionSort();    //CALLING insertionSort FUNCTION
+        
+                    int mid;
+                    int l;
+                    int h;
+                    string z;
+                    cout<<"Enter the name of student you want to search "<<endl;
+                    cin>>z;  
+                    l=0;
+                    h=14;
+                    mid=(l+h)/2;
+                    while(l<=h)
+                    {
+                        if(studentList[mid].name==z){
+                            cout<<"Student was found  "<<endl;
+                            cout<<studentList[mid].rollNo<<" "<<studentList[mid].name<<" "<<studentList[mid].cgpa<<endl; 
+                            break;
+                        }
+                        else if(studentList[mid].name<z){
+                            l=mid+1;
+                        }
+                        else{
+                            h=mid-1;
+                        }   
+                        mid=(l+h)/2;
+                    }
+                    if(studentList[mid].name!=z)
+                    {
+                        cout<<"NO STUDENT WITH THAT NAME"<<endl;
+                    }
+                    break;
+            }
+            
+            default:                                       //DEFAULT CONDITION
+                    cout<<"Sorry Wrong input"<<endl;
+                    break;
+                }
+
+                //CONTINUE OR QUIT
+        cout<<"DO YOU WANT TO CONTINUE 1= YES ; 0=NO"<<endl;
+        int a;
+        cin>>a;
+        if(a==1){
+            continue;
+        }
+        else if(a==0){
+        cout<<"THANK YOU!!"<<endl;
+            break;
+        }
+        else{
+            cout<<"WRONG CHOICE"<<endl;
+        }
+        cout<<endl;
     }
 }
